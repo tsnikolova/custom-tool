@@ -4,62 +4,66 @@
     return;
   }
 
-  console.log('✅ Custom tool script loaded.');
+  console.log('✅ custom-tool.js loaded inside Unlayer iframe');
 
-  // --- 1. Register property editor (simple input for border radius)
+  // 1️⃣ Register your new property editor (simple input)
   unlayer.registerPropertyEditor({
     name: 'border_radius_editor',
     Widget: {
       render(value) {
-        var val = value || '0px';
-        return '<input type="text" value="' + val + '" style="width:100%;padding:6px;border:1px solid #ccc;border-radius:4px;" />';
+        const val = value || '0px';
+        return `<input 
+          type="text" 
+          value="${val}" 
+          style="width:100%;padding:6px;border:1px solid #ccc;border-radius:4px;" 
+        />`;
       },
       mount(node, value, updateValue) {
-        var input = node.querySelector('input');
-        input.addEventListener('input', function (e) {
-          updateValue(e.target.value);
-        });
+        const input = node.querySelector('input');
+        input.addEventListener('input', (e) => updateValue(e.target.value));
       },
       unmount() {}
     }
   });
 
-  // --- 2. Register new property for column blocks
-  unlayer.registerTool({
-    name: 'custom_column',
-    label: 'Column+',
-    icon: 'fa-columns',
-    supportedDisplayModes: ['email'],
-    options: {
-      border_radius: {
-        label: 'Border Radius',
-        widget: 'border_radius_editor',
-        defaultValue: '0px'
-      }
-    },
-    values: {},
-    renderer: {
-      Viewer({ values }) {
-        const borderRadius = values.border_radius || '0px';
-        return `
-          <div style="border-radius:${borderRadius};padding:10px;border:1px solid #ccc;">
-            <div class="inner-column">Your column content</div>
-          </div>
-        `;
-      },
-      exporters: {
-        email: function (values) {
-          const borderRadius = values.border_radius || '0px';
-          return {
-            type: 'container',
-            values: {
-              border_radius: borderRadius
-            }
-          };
-        }
-      }
-    }
-  });
+  console.log('✅ border_radius_editor registered');
 
-  console.log('✅ Custom column tool registered.');
+  // 2️⃣ Patch the existing "column" tool
+  const patchColumnTool = () => {
+    const columnTool = unlayer.getToolByName('column');
+    if (!columnTool) {
+      console.warn('⏳ Column tool not ready yet, retrying...');
+      setTimeout(patchColumnTool, 500);
+      return;
+    }
+
+    console.log('✅ Column tool found, patching...');
+
+    // Add new property to the Column tool
+    const properties = columnTool.properties || {};
+    properties.border_radius = {
+      label: 'Border Radius',
+      widget: 'border_radius_editor',
+      defaultValue: '0px'
+    };
+
+    // Apply it back
+    columnTool.properties = properties;
+
+    // Ensure live visual update
+    const oldRender = columnTool.render;
+    columnTool.render = function (values) {
+      const el = oldRender ? oldRender(values) : '<div></div>';
+      const borderRadius = values.border_radius || '0px';
+      const wrapper = document.createElement('div');
+      wrapper.innerHTML = el;
+      wrapper.firstChild.style.borderRadius = borderRadius;
+      return wrapper.innerHTML;
+    };
+
+    unlayer.registerTool('column', columnTool);
+    console.log('✅ Column tool patched with Border Radius');
+  };
+
+  patchColumnTool();
 })();
