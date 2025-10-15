@@ -6,17 +6,13 @@
 
   console.log('✅ custom-tool.js loaded inside Unlayer iframe');
 
-  // 1️⃣ Register your new property editor (simple input)
+  // 1️⃣ Register your property editor (simple text input)
   unlayer.registerPropertyEditor({
     name: 'border_radius_editor',
     Widget: {
       render(value) {
         const val = value || '0px';
-        return `<input 
-          type="text" 
-          value="${val}" 
-          style="width:100%;padding:6px;border:1px solid #ccc;border-radius:4px;" 
-        />`;
+        return `<input type="text" value="${val}" style="width:100%;padding:6px;border:1px solid #ccc;border-radius:4px;" />`;
       },
       mount(node, value, updateValue) {
         const input = node.querySelector('input');
@@ -28,42 +24,31 @@
 
   console.log('✅ border_radius_editor registered');
 
-  // 2️⃣ Patch the existing "column" tool
-  const patchColumnTool = () => {
-    const columnTool = unlayer.getToolByName('column');
+  // 2️⃣ Wait for Unlayer to finish loading all tools
+  unlayer.addEventListener('editor:ready', function () {
+    console.log('🧱 Unlayer editor ready — patching Column tool...');
+
+    const tools = unlayer.getRegisteredTools?.() || unlayer.tools || {};
+    const columnTool = tools['column'];
+
     if (!columnTool) {
-      console.warn('⏳ Column tool not ready yet, retrying...');
-      setTimeout(patchColumnTool, 500);
+      console.warn('⚠️ Column tool not found yet.');
       return;
     }
 
-    console.log('✅ Column tool found, patching...');
-
-    // Add new property to the Column tool
-    const properties = columnTool.properties || {};
-    properties.border_radius = {
-      label: 'Border Radius',
-      widget: 'border_radius_editor',
-      defaultValue: '0px'
+    // Add our new property to its existing ones
+    columnTool.properties = {
+      ...columnTool.properties,
+      border_radius: {
+        label: 'Border Radius',
+        widget: 'border_radius_editor',
+        defaultValue: '0px'
+      }
     };
 
-    // Apply it back
-    columnTool.properties = properties;
-
-    // Ensure live visual update
-    const oldRender = columnTool.render;
-    columnTool.render = function (values) {
-      const el = oldRender ? oldRender(values) : '<div></div>';
-      const borderRadius = values.border_radius || '0px';
-      const wrapper = document.createElement('div');
-      wrapper.innerHTML = el;
-      wrapper.firstChild.style.borderRadius = borderRadius;
-      return wrapper.innerHTML;
-    };
-
+    // Re-register the tool with modified properties
     unlayer.registerTool('column', columnTool);
-    console.log('✅ Column tool patched with Border Radius');
-  };
 
-  patchColumnTool();
+    console.log('✅ Column tool patched with Border Radius property');
+  });
 })();
