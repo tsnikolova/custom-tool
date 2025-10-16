@@ -56,8 +56,7 @@ unlayer.registerTool({
         textColor: {
           label: 'Color',
           defaultValue: '#ff0000',
--         widget: 'color_picker', // built_in property editor
-+         widget: 'my_color_picker', // custom property editor
+          widget: 'my_color_picker', // custom property editor
         },
       },
     },
