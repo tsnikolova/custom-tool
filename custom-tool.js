@@ -30,6 +30,16 @@ unlayer.registerTool({
   label: 'My Tool',
   icon: 'fa-smile',
   supportedDisplayModes: ['web', 'email'],
+  properties:{
+  buttonColors: {
+          value: {
+            color: '#FFFFFF',
+            backgroundColor: '#3AAEE0',
+            hoverColor: '#FFFFFF',
+            hoverBackgroundColor: '#3AAEE0',
+          },
+        },
+  }
   options: {
     default: {
       title: null,
@@ -43,6 +53,7 @@ unlayer.registerTool({
           defaultValue: '0',
           widget: 'my_rounded-border', // custom property editor
         },
+		
       },
     },
   },
