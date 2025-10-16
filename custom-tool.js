@@ -3,7 +3,6 @@
 
   console.log('✅ custom-tool.js loaded inside Unlayer iframe');
 
-  // Register the custom property editor
   unlayer.registerPropertyEditor({
     name: 'border_radius_editor',
     Widget: {
@@ -13,7 +12,7 @@
       },
       mount(node, value, updateValue) {
         const input = node.querySelector('input');
-        input.addEventListener('input', e => updateValue(e.target.value));
+        input.addEventListener('input', (e) => updateValue(e.target.value));
       },
       unmount() {}
     }
@@ -21,12 +20,11 @@
 
   console.log('✅ border_radius_editor registered');
 
-  // Register a new Column+ tool
   unlayer.registerTool({
     name: 'column_plus',
     label: 'Column+',
     icon: 'fa-columns',
-    supportedDisplayModes: ['email'],
+    supportedDisplayModes: ['email', 'web'],
     options: {
       border_radius: {
         label: 'Border Radius',
@@ -38,13 +36,22 @@
     renderer: {
       Viewer({ values }) {
         const radius = values.border_radius || '0px';
-        return `
-          <div style="border:1px solid #ccc;border-radius:${radius};padding:10px;">
-            <div>Your column content here</div>
-          </div>
-        `;
-      }
-    }
+        return unlayer.createElement('div', {
+          style: {
+            border: '1px solid #ccc',
+            borderRadius: radius,
+            padding: '10px',
+            minHeight: '50px',
+          },
+          children: [
+            unlayer.createElement('div', {
+              style: { textAlign: 'center', color: '#999', fontSize: '13px' },
+              children: 'Drop content here',
+            }),
+          ],
+        });
+      },
+    },
   });
 
   console.log('✅ Column+ tool registered');
