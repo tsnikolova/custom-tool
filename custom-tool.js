@@ -39,7 +39,7 @@ unlayer.registerTool({
             hoverBackgroundColor: '#3AAEE0',
           },
         },
-  }
+  },
   options: {
     default: {
       title: null,
