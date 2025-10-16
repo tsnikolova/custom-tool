@@ -40,44 +40,49 @@ unlayer.registerPropertyEditor({
     },
   }),
 });
- unlayer.registerTool({
+unlayer.registerTool({
   name: 'my_tool',
   label: 'My Tool',
   icon: 'fa-smile',
   supportedDisplayModes: ['web', 'email'],
-  options: {},
+  options: {
+    default: {
+      title: null,
+    },
+    text: {
+      title: 'Color',
+      position: 1,
+      options: {
+        textColor: {
+          label: 'Color',
+          defaultValue: '#ff0000',
+-         widget: 'color_picker', // built_in property editor
++         widget: 'my_color_picker', // custom property editor
+        },
+      },
+    },
+  },
   values: {},
   renderer: {
     Viewer: unlayer.createViewer({
       render(values) {
-        return '<div>I am a custom tool.</div>';
+        return `<div style="color: ${values.textColor};">I am a custom tool.</div>`;
       },
     }),
     exporters: {
       web: function (values) {
-        return '<div>I am a custom tool.</div>';
+        return `<div style="color: ${values.textColor};">I am a custom tool.</div>`;
       },
       email: function (values) {
-        return '<div>I am a custom tool.</div>';
+        return `<div style="color: ${values.textColor};">I am a custom tool.</div>`;
       },
     },
     head: {
       css: function (values) {},
       js: function (values) {},
-      redBtn.onclick = function () {
-        updateValue('#FF0000');
-      };
-
-      greenBtn.onclick = function () {
-        updateValue('#00ff00');
-      };
-
-      blueBtn.onclick = function () {
-        updateValue('#0000ff');
-      };
     },
   },
-  }),
 });
+
   console.log('✅ Column+ tool registered');
 })();
