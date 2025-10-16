@@ -59,15 +59,15 @@ unlayer.registerTool({
   renderer: {
     Viewer: unlayer.createViewer({
       render(values) {
-        return `<div style="border-radius: ${values.borderRadius};">I am a custom tool.</div>`;
+        return `<div style="border-radius: ${values.borderRadius};background-color:#3AAEE0;">I am a custom tool.</div>`;
       },
     }),
     exporters: {
       web: function (values) {
-        return `<div style="border-radius: ${values.borderRadius};">I am a custom tool.</div>`;
+        return `<div style="border-radius: ${values.borderRadius};background-color:#3AAEE0;">I am a custom tool.</div>`;
       },
       email: function (values) {
-        return `<div style="border-radius: ${values.borderRadius};">I am a custom tool.</div>`;
+        return `<div style="border-radius: ${values.borderRadius};background-color:#3AAEE0;">I am a custom tool.</div>`;
       },
     },
     head: {
