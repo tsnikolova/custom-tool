@@ -1,18 +1,23 @@
-(function () {
-  if (typeof unlayer === 'undefined') {
-    console.warn('❌ Unlayer not found in iframe yet.');
-    return;
+(function waitForUnlayer() {
+  // Wait until unlayer is available
+  if (typeof unlayer === 'undefined' || !unlayer.registerPropertyEditor) {
+    console.warn('⏳ Waiting for unlayer to be ready...');
+    return setTimeout(waitForUnlayer, 500);
   }
 
   console.log('✅ custom-tool.js loaded inside Unlayer iframe');
 
-  // 1️⃣ Register your property editor (simple text input)
+  // 1️⃣ Register your property editor
   unlayer.registerPropertyEditor({
     name: 'border_radius_editor',
     Widget: {
       render(value) {
         const val = value || '0px';
-        return `<input type="text" value="${val}" style="width:100%;padding:6px;border:1px solid #ccc;border-radius:4px;" />`;
+        return `<input 
+          type="text" 
+          value="${val}" 
+          style="width:100%;padding:6px;border:1px solid #ccc;border-radius:4px;" 
+        />`;
       },
       mount(node, value, updateValue) {
         const input = node.querySelector('input');
@@ -24,31 +29,36 @@
 
   console.log('✅ border_radius_editor registered');
 
-  // 2️⃣ Wait for Unlayer to finish loading all tools
-  unlayer.addEventListener('editor:ready', function () {
-    console.log('🧱 Unlayer editor ready — patching Column tool...');
+  // 2️⃣ Wait for Column tool to exist and then patch it
+  (function waitForColumnTool() {
+    try {
+      const allTools = (unlayer && unlayer._plugins && unlayer._plugins.tools) || {};
+      const columnTool = allTools['column'];
 
-    const tools = unlayer.getRegisteredTools?.() || unlayer.tools || {};
-    const columnTool = tools['column'];
-
-    if (!columnTool) {
-      console.warn('⚠️ Column tool not found yet.');
-      return;
-    }
-
-    // Add our new property to its existing ones
-    columnTool.properties = {
-      ...columnTool.properties,
-      border_radius: {
-        label: 'Border Radius',
-        widget: 'border_radius_editor',
-        defaultValue: '0px'
+      if (!columnTool) {
+        console.warn('⏳ Column tool not ready yet, retrying...');
+        return setTimeout(waitForColumnTool, 500);
       }
-    };
 
-    // Re-register the tool with modified properties
-    unlayer.registerTool('column', columnTool);
+      console.log('✅ Column tool found, patching...');
 
-    console.log('✅ Column tool patched with Border Radius property');
-  });
+      // Add new property to existing tool
+      columnTool.properties = {
+        ...columnTool.properties,
+        border_radius: {
+          label: 'Border Radius',
+          widget: 'border_radius_editor',
+          defaultValue: '0px'
+        }
+      };
+
+      // Re-register it
+      unlayer.registerTool('column', columnTool);
+
+      console.log('✅ Column tool patched with Border Radius');
+    } catch (err) {
+      console.error('❌ Error while patching column tool:', err);
+      setTimeout(waitForColumnTool, 500);
+    }
+  })();
 })();
