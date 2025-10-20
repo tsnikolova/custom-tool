@@ -4,7 +4,7 @@
  unlayer.registerTool({
     name: 'custom-column',
     label: 'Advanced Column',
-    icon: 'fa-columns', // you can change to any icon
+    icon: 'fa-smile',
     supportedDisplayModes: ['email'],
     options: {
       properties: [
