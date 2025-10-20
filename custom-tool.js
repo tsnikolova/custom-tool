@@ -73,7 +73,53 @@
           ]
         }
       ]
-    }
+    },
+    renderer: {
+      Viewer: unlayer.createViewer({
+        render(values) {
+          const style = `
+            border-radius: ${values.borderRadius || 0}px;
+            background-color: ${values.backgroundColor || '#3AAEE0'};
+            width: ${values.width || 100}%;
+            padding: ${values.padding?.top || 0}px ${values.padding?.right || 0}px ${values.padding?.bottom || 0}px ${values.padding?.left || 0}px;
+            border-width: ${values.borderWidth || 0}px;
+            border-color: ${values.borderColor || '#000'};
+            border-style: ${values.borderStyle || 'solid'};
+          `;
+          return `<div style="${style}">I am a custom tool.</div>`;
+        },
+      }),
+      exporters: {
+        web(values) {
+          const style = `
+            border-radius: ${values.borderRadius || 0}px;
+            background-color: ${values.backgroundColor || '#3AAEE0'};
+            width: ${values.width || 100}%;
+            padding: ${values.padding?.top || 0}px ${values.padding?.right || 0}px ${values.padding?.bottom || 0}px ${values.padding?.left || 0}px;
+            border-width: ${values.borderWidth || 0}px;
+            border-color: ${values.borderColor || '#000'};
+            border-style: ${values.borderStyle || 'solid'};
+          `;
+          return `<div style="${style}">I am a custom tool.</div>`;
+        },
+        email(values) {
+          const style = `
+            border-radius: ${values.borderRadius || 0}px;
+            background-color: ${values.backgroundColor || '#3AAEE0'};
+            width: ${values.width || 100}%;
+            padding: ${values.padding?.top || 0}px ${values.padding?.right || 0}px ${values.padding?.bottom || 0}px ${values.padding?.left || 0}px;
+            border-width: ${values.borderWidth || 0}px;
+            border-color: ${values.borderColor || '#000'};
+            border-style: ${values.borderStyle || 'solid'};
+          `;
+          return `<div style="${style}">I am a custom tool.</div>`;
+        }
+      },
+      head: {
+        css(values) { return ''; },
+        js(values) { return ''; }
+      }
+    },
   });
 
   console.log('✅ Advanced Column tool registered (standalone, with borderRadius slider)');
