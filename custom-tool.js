@@ -1,62 +1,81 @@
 (function () {
-  unlayer.onLoad(function() {
   if (typeof unlayer === 'undefined') return;
 
-  var buttonTool = unlayer.getTool('button'); // safe now
-  var columnTool = unlayer.getTool('column'); // safe now
-
-  if (!buttonTool || !buttonTool.options || !buttonTool.options.properties) {
-    console.warn('Button tool or its properties not found!');
-    return;
-  }
-
-  // --- Step 2: Extract the borderRadius property from Button ---
-  var borderRadiusProp = buttonTool.options.properties.find(
-    (prop) => prop.id === 'borderRadius'
-  );
-
-  if (!borderRadiusProp) {
-    console.warn('borderRadius property not found in Button tool!');
-    return;
-  }
-
-  // --- Step 3: Get the built-in Column tool ---
-  var columnTool = unlayer.getTool('column');
-
-  if (!columnTool || !columnTool.options || !columnTool.options.properties) {
-    console.warn('Column tool or its properties not found!');
-    return;
-  }
-
-  // --- Step 4: Clone the column properties ---
-  var newColumnProps = JSON.parse(JSON.stringify(columnTool.options.properties));
-
-  // --- Step 5: Find the Borders group ---
-  var bordersGroup = newColumnProps.find((group) => group.label === 'Borders');
-
-  if (bordersGroup && bordersGroup.properties) {
-    // Add the Button-style borderRadius property
-    bordersGroup.properties.push(borderRadiusProp);
-  } else {
-    // If no Borders group, create one
-    newColumnProps.push({
-      label: 'Borders',
-      properties: [borderRadiusProp],
-    });
-  }
-
-  // --- Step 6: Register the new custom column tool ---
-  unlayer.registerTool({
-    name: 'custom-column',       // currently shows separately
-    label: 'Advanced Column',    // sidebar name
-    icon: columnTool.icon,       // reuse original icon
-    supportedDisplayModes: columnTool.supportedDisplayModes,
+ unlayer.registerTool({
+    name: 'custom-column',
+    label: 'Advanced Column',
+    icon: 'fa-columns', // you can change to any icon
+    supportedDisplayModes: ['email'],
     options: {
-      ...columnTool.options,
-      properties: newColumnProps,
-    },
+      properties: [
+        {
+          label: 'Column',
+          properties: [
+            {
+              id: 'backgroundColor',
+              type: 'color',
+              label: 'Background Color',
+              defaultValue: '#ffffff'
+            },
+            {
+              id: 'width',
+              type: 'slider',
+              label: 'Width',
+              min: 10,
+              max: 100,
+              defaultValue: 100,
+              unit: '%'
+            },
+            {
+              id: 'padding',
+              type: 'padding',
+              label: 'Padding',
+              defaultValue: { top: 0, right: 0, bottom: 0, left: 0 }
+            }
+          ]
+        },
+        {
+          label: 'Borders',
+          properties: [
+            {
+              id: 'borderWidth',
+              type: 'text',
+              label: 'Border Width',
+              defaultValue: '0px'
+            },
+            {
+              id: 'borderColor',
+              type: 'color',
+              label: 'Border Color',
+              defaultValue: '#000000'
+            },
+            {
+              id: 'borderStyle',
+              type: 'select',
+              label: 'Border Style',
+              options: [
+                { label: 'solid', value: 'solid' },
+                { label: 'dashed', value: 'dashed' },
+                { label: 'dotted', value: 'dotted' },
+                { label: 'none', value: 'none' }
+              ],
+              defaultValue: 'solid'
+            },
+            {
+              id: 'borderRadius',
+              type: 'slider',
+              label: 'Border Radius',
+              min: 0,
+              max: 50,
+              defaultValue: 4,
+              unit: 'px'
+            }
+          ]
+        }
+      ]
+    }
   });
 
-  console.log('✅ Advanced Column tool registered with Button-style borderRadius!');
-  });
+  console.log('✅ Advanced Column tool registered (standalone, with borderRadius slider)');
+
 })();
