@@ -1,7 +1,7 @@
 (function () {
   if (typeof unlayer === 'undefined') return;
 
-  unlayer.registerTool({
+unlayer.registerTool({
     name: 'custom-column',
     label: 'Advanced Column',
     icon: 'fa-columns',
@@ -9,27 +9,20 @@
     options: {
       properties: [
         {
-          label: 'Column',
+          label: 'General',
           properties: [
+            // Column
             { id: 'width', type: 'slider', label: 'Width', min: 10, max: 100, defaultValue: 100, unit: '%' },
             { id: 'align', type: 'select', label: 'Alignment', options: [
                 { label: 'Left', value: 'left' },
                 { label: 'Center', value: 'center' },
                 { label: 'Right', value: 'right' }
               ], defaultValue: 'left'
-            }
-          ]
-        },
-        {
-          label: 'Background',
-          properties: [
+            },
+            // Background
             { id: 'backgroundColor', type: 'color', label: 'Background Color', defaultValue: '#ffffff' },
-            { id: 'backgroundImage', type: 'image', label: 'Background Image', defaultValue: '' }
-          ]
-        },
-        {
-          label: 'Borders',
-          properties: [
+            { id: 'backgroundImage', type: 'image', label: 'Background Image', defaultValue: '' },
+            // Borders
             { id: 'borderWidth', type: 'text', label: 'Border Width', defaultValue: '0px' },
             { id: 'borderColor', type: 'color', label: 'Border Color', defaultValue: '#000000' },
             { id: 'borderStyle', type: 'select', label: 'Border Style', options: [
@@ -39,12 +32,8 @@
                 { label: 'none', value: 'none' }
               ], defaultValue: 'solid'
             },
-            { id: 'borderRadius', type: 'slider', label: 'Border Radius', min:0, max:50, defaultValue: 4, unit: 'px' }
-          ]
-        },
-        {
-          label: 'Padding',
-          properties: [
+            { id: 'borderRadius', type: 'slider', label: 'Border Radius', min:0, max:50, defaultValue: 4, unit: 'px' },
+            // Padding
             { id: 'padding', type: 'padding', label: 'Padding', defaultValue: { top: 0, right: 0, bottom: 0, left: 0 } }
           ]
         }
@@ -97,13 +86,10 @@
           return `<div style="${style}">I am a custom tool.</div>`;
         }
       },
-      head: {
-        css(values){ return ''; },
-        js(values){ return ''; }
-      }
+      head: { css() { return ''; }, js() { return ''; } }
     }
   });
 
-  console.log('✅ Advanced Column tool registered with full property groups');
+  console.log('✅ Advanced Column tool registered (all properties in General)');
 
 })();
