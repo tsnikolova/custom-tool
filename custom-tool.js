@@ -1,131 +1,59 @@
 (function () {
   if (typeof unlayer === 'undefined') return;
 
-  console.log('✅ custom-tool.js loaded inside Unlayer iframe');
+   var buttonTool = unlayer.getTool('button');
 
-  // 1️⃣ Register the border radius editor
-unlayer.registerPropertyEditor({
-  name: 'my_rounded-border',
-  layout: 'bottom',
-  Widget: unlayer.createWidget({
-    render(value, updateValue, data) {
-      return `
-        <input class="value" type="text" value="${value}" />
-      `;
-    },
-    mount(node, value, updateValue, data) {
-      var input = node.querySelector('.value');
-     
+  if (!buttonTool || !buttonTool.options || !buttonTool.options.properties) {
+    console.warn('Button tool or its properties not found!');
+    return;
+  }
 
-      input.onchange = function (e) {
-        updateValue(e.target.value);
-      };
+  // --- Step 2: Extract the borderRadius property from Button ---
+  var borderRadiusProp = buttonTool.options.properties.find(
+    (prop) => prop.id === 'borderRadius'
+  );
 
-      
-    },
-  }),
-});
-unlayer.registerTool({
-  name: 'my_tool',
-  label: 'My Tool',
-  icon: 'fa-smile',
-  supportedDisplayModes: ['web', 'email'],
+  if (!borderRadiusProp) {
+    console.warn('borderRadius property not found in Button tool!');
+    return;
+  }
 
-  options: {
-    default: {
-      title: null,
-    },
-    text: {
-      title: 'Border Radius',
-      position: 1,
-      options: {
-        borderRadius: {
-          label: 'Border Radius',
-          defaultValue: '0',
-          widget: 'my_rounded-border', // custom property editor
-        },
-      },
-		buttonColors: {
-          value: {
-            color: '#FFFFFF',
-            backgroundColor: '#3AAEE0',
-            hoverColor: '#FFFFFF',
-            hoverBackgroundColor: '#3AAEE0',
-          },
-        },
-    },
-  },
-  values: {},
-  renderer: {
-    Viewer: unlayer.createViewer({
-      render(values) {
-        return `<div style="border-radius: ${values.borderRadius};background-color:#3AAEE0;">I am a custom tool.</div>`;
-      },
-    }),
-    exporters: {
-      web: function (values) {
-        return `<div style="border-radius: ${values.borderRadius};background-color:#3AAEE0;">I am a custom tool.</div>`;
-      },
-      email: function (values) {
-        return `<div style="border-radius: ${values.borderRadius};background-color:#3AAEE0;">I am a custom tool.</div>`;
-      },
-    },
-    head: {
-      css: function (values) {},
-      js: function (values) {},
-    },
-  },
-});
-unlayer.registerTool({
-  name: 'my_tool2',
-  label: 'My Tool2',
-  icon: 'fa-smile',
-  supportedDisplayModes: ['web', 'email'],
+  // --- Step 3: Get the built-in Column tool ---
+  var columnTool = unlayer.getTool('column');
 
-  options: {
-    default: {
-      title: null,
+  if (!columnTool || !columnTool.options || !columnTool.options.properties) {
+    console.warn('Column tool or its properties not found!');
+    return;
+  }
+
+  // --- Step 4: Clone the column properties ---
+  var newColumnProps = JSON.parse(JSON.stringify(columnTool.options.properties));
+
+  // --- Step 5: Find the Borders group ---
+  var bordersGroup = newColumnProps.find((group) => group.label === 'Borders');
+
+  if (bordersGroup && bordersGroup.properties) {
+    // Add the Button-style borderRadius property
+    bordersGroup.properties.push(borderRadiusProp);
+  } else {
+    // If no Borders group, create one
+    newColumnProps.push({
+      label: 'Borders',
+      properties: [borderRadiusProp],
+    });
+  }
+
+  // --- Step 6: Register the new custom column tool ---
+  unlayer.registerTool({
+    name: 'custom-column',       // currently shows separately
+    label: 'Advanced Column',    // sidebar name
+    icon: columnTool.icon,       // reuse original icon
+    supportedDisplayModes: columnTool.supportedDisplayModes,
+    options: {
+      ...columnTool.options,
+      properties: newColumnProps,
     },
-    text: {
-      title: 'Border Radius',
-      position: 1,
-      options: {
-        borderRadius: {
-          label: 'Border Radius',
-          defaultValue: '0',
-          widget: 'my_rounded-border', // custom property editor
-        },
-      },
-		buttonColors: {
-          value: {
-            color: '#FFFFFF',
-            backgroundColor: '#3AAEE0',
-            hoverColor: '#FFFFFF',
-            hoverBackgroundColor: '#3AAEE0',
-          },
-        },
-    },
-  },
-  values: {},
-  renderer: {
-    Viewer: unlayer.createViewer({
-      render(values) {
-        return `<div style="border-radius: ${values.borderRadius};background-color:#3AAEE0;">I am a custom tool.</div>`;
-      },
-    }),
-    exporters: {
-      web: function (values) {
-        return `<div style="border-radius: ${values.borderRadius};background-color:#3AAEE0;">I am a custom tool.</div>`;
-      },
-      email: function (values) {
-        return `<div style="border-radius: ${values.borderRadius};background-color:#3AAEE0;">I am a custom tool.</div>`;
-      },
-    },
-    head: {
-      css: function (values) {},
-      js: function (values) {},
-    },
-  },
-});
-  console.log('✅ Column+ tool registered');
+  });
+
+  console.log('✅ Advanced Column tool registered with Button-style borderRadius!');
 })();
