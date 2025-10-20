@@ -2,8 +2,8 @@
   unlayer.onLoad(function() {
   if (typeof unlayer === 'undefined') return;
 
-  const buttonTool = unlayer.getTool('button'); // safe now
-  const columnTool = unlayer.getTool('column'); // safe now
+  var buttonTool = unlayer.getTool('button'); // safe now
+  var columnTool = unlayer.getTool('column'); // safe now
 
   if (!buttonTool || !buttonTool.options || !buttonTool.options.properties) {
     console.warn('Button tool or its properties not found!');
