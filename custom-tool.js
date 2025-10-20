@@ -58,5 +58,5 @@
   });
 
   console.log('✅ Advanced Column tool registered with Button-style borderRadius!');
-  }
+  });
 })();
