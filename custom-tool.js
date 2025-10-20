@@ -285,9 +285,8 @@
     });
 
     console.log('✅ Advanced Column + borderRadiusFour registered');
-})();
 
- function px(n) {
+   function px(n) {
     if (n === undefined || n === null) return '0px';
     return (String(n).match(/px$/) ? String(n) : String(n) + 'px');
   }
@@ -335,3 +334,4 @@
     return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 })();
+
