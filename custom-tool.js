@@ -253,99 +253,253 @@
         }
       })
     });
+function escapeHtml(str) {
+    if (!str && str !== 0) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
 
+  function px(v) {
+    return (v === undefined || v === null) ? '0px' : (typeof v === 'number' ? v + 'px' : (String(v).match(/px$/) ? v : v + 'px'));
+  }
+
+  // Accepts containerPadding in forms like '10px' or '10px 5px' etc.
+  function parsePaddingValue(pad) {
+    if (!pad) return { top: 0, right: 0, bottom: 0, left: 0 };
+    try {
+      // remove commas
+      pad = String(pad).trim().replace(/,/g, ' ');
+      const parts = pad.split(/\s+/).map(s => parseInt(s, 10) || 0);
+      if (parts.length === 1) {
+        return { top: parts[0], right: parts[0], bottom: parts[0], left: parts[0] };
+      } else if (parts.length === 2) {
+        return { top: parts[0], right: parts[1], bottom: parts[0], left: parts[1] };
+      } else if (parts.length === 3) {
+        return { top: parts[0], right: parts[1], bottom: parts[2], left: parts[1] };
+      } else {
+        return { top: parts[0], right: parts[1], bottom: parts[2], left: parts[3] };
+      }
+    } catch (e) {
+      return { top: 0, right: 0, bottom: 0, left: 0 };
+    }
+  }
     // ---------- register tool ----------
     unlayer.registerTool({
-      name: 'custom_column', // per your request
-      label: 'Advanced Column',
-      icon: 'fa-columns',
-      supportedDisplayModes: ['email', 'web'],
-      options: {
-        // using named groups for the sidebar; note some platforms show only limited widgets for custom tools,
-        // but registerPropertyEditor should link our custom editor into the group.
-        general: {
-          title: 'General',
-          position: 1,
-          options: {
-            backgroundColor: { widget: 'color_picker', label: 'Background Color', defaultValue: '#ffffff' },
-            // Use built-in padding if available; otherwise apps may show alternate UI
-            containerPadding: { widget: 'padding', label: 'Padding', defaultValue: '0px' }
-          }
-        },
-        border: {
-          title: 'Border',
-          position: 3,
-          options: {
-            // our custom per-corner editor
-            borderRadius: { widget: 'borderRadiusFour', label: 'Rounded Border', defaultValue: { tl: 0, tr: 0, br: 0, bl: 0, moreOptions: false, linked: true } }
-          }
+    name: 'image_text_column',
+    label: 'Image + Text (side-by-side)',
+    icon: 'fa-image',
+    supportedDisplayModes: ['email', 'web'],
+
+    options: {
+      general: {
+        title: 'General',
+        position: 1,
+        options: {
+          backgroundColor: { widget: 'color_picker', label: 'Background Color', defaultValue: '#ffffff' },
+          containerPadding: { widget: 'padding', label: 'Padding', defaultValue: '0px' }
         }
       },
 
-      values: {
-        backgroundColor: '#ffffff',
-        containerPadding: '0px',
-        borderRadius: { tl: 0, tr: 0, br: 0, bl: 0, moreOptions: false, linked: true }
+      media: {
+        title: 'Media',
+        position: 2,
+        options: {
+          image: { widget: 'image', label: 'Image', defaultValue: '' },
+          imagePosition: { widget: 'select', label: 'Image Position', options: [{ value: 'left', label: 'Left' }, { value: 'right', label: 'Right' }], defaultValue: 'left' },
+          imageWidth: { widget: 'slider', label: 'Image Width (%)', defaultValue: 40, min: 10, max: 90 },
+          gap: { widget: 'slider', label: 'Gap (px)', defaultValue: 15, min: 0, max: 60 }
+        }
       },
 
-      renderer: {
-        Viewer: unlayer.createViewer({
-          render: function (values) {
-            const bg = values.backgroundColor || '#ffffff';
-            const padding = parsePaddingValue(values.containerPadding) || { top: 0, right: 0, bottom: 0, left: 0 };
-            const br = values.borderRadius || { tl: 0, tr: 0, br: 0, bl: 0 };
-            const style = `
-              display:block;
-              width:100%;
-              background-color:${escapeHtml(bg)};
-              padding:${padding.top}px ${padding.right}px ${padding.bottom}px ${padding.left}px;
-              border-radius:${px(br.tl)} ${px(br.tr)} ${px(br.br)} ${px(br.bl)};
-              box-sizing:border-box;
-            `;
-            return `<div style="${style}">Advanced Column</div>`;
-          }
-        }),
+      content: {
+        title: 'Text',
+        position: 3,
+        options: {
+          text: { widget: 'rich_text', label: 'Text', defaultValue: '<h3>Your heading</h3><p>Your description here...</p>' }
+        }
+      },
 
-        exporters: {
-          web: function (values) {
-            const bg = values.backgroundColor || '#ffffff';
-            const padding = parsePaddingValue(values.containerPadding) || { top: 0, right: 0, bottom: 0, left: 0 };
-            const br = values.borderRadius || { tl: 0, tr: 0, br: 0, bl: 0 };
-            const style = `
-              display:block;
-              width:100%;
-              background-color:${bg};
-              padding:${padding.top}px ${padding.right}px ${padding.bottom}px ${padding.left}px;
-              border-radius:${px(br.tl)} ${px(br.tr)} ${px(br.br)} ${px(br.bl)};
-              box-sizing:border-box;
-            `;
-            return `<div style="${style}">Advanced Column</div>`;
-          },
-          email: function (values) {
-            const bg = values.backgroundColor || '#ffffff';
-            const padding = parsePaddingValue(values.containerPadding) || { top: 0, right: 0, bottom: 0, left: 0 };
-            const br = values.borderRadius || { tl: 0, tr: 0, br: 0, bl: 0 };
-            const style = `
-              display:block;
-              width:100%;
-              background-color:${bg};
-              padding:${padding.top}px ${padding.right}px ${padding.bottom}px ${padding.left}px;
-              border-radius:${px(br.tl)} ${px(br.tr)} ${px(br.br)} ${px(br.bl)};
-              box-sizing:border-box;
-            `;
-            return `<div style="${style}">Advanced Column</div>`;
-          }
-        },
-
-        head: {
-          css: function () { return ''; },
-          js: function () { return ''; }
+      border: {
+        title: 'Border',
+        position: 4,
+        options: {
+          borderRadius: { widget: 'borderRadiusFour', label: 'Rounded Border', defaultValue: { tl: 0, tr: 0, br: 0, bl: 0, moreOptions: false, linked: true } }
         }
       }
-    });
+    },
 
-    console.log('✅ custom_column tool + borderRadiusFour editor registered (Button-like UI)');
+    values: {
+      backgroundColor: '#ffffff',
+      containerPadding: '0px',
+      image: '',
+      imagePosition: 'left',
+      imageWidth: 40,
+      gap: 15,
+      text: '<h3>Your heading</h3><p>Your description here...</p>',
+      borderRadius: { tl: 0, tr: 0, br: 0, bl: 0, moreOptions: false, linked: true }
+    },
+
+    renderer: {
+      Viewer: unlayer.createViewer({
+        render: function (values) {
+          const bg = values.backgroundColor || '#ffffff';
+          const padding = parsePaddingValue(values.containerPadding);
+          const br = values.borderRadius || { tl: 0, tr: 0, br: 0, bl: 0 };
+          const imageUrl = values.image || '';
+          const imagePos = values.imagePosition === 'right' ? 'right' : 'left';
+          const imageWidthPct = Number(values.imageWidth || 40);
+          const gapPx = Number(values.gap || 15);
+
+          // Inline styles for viewer canvas preview
+          const containerStyle = [
+            'display:block',
+            'width:100%',
+            `background-color:${escapeHtml(bg)}`,
+            `padding:${padding.top}px ${padding.right}px ${padding.bottom}px ${padding.left}px`,
+            `border-radius:${px(br.tl)} ${px(br.tr)} ${px(br.br)} ${px(br.bl)}`,
+            'box-sizing:border-box'
+          ].join(';');
+
+          // image block style
+          const imgStyle = [
+            'display:block',
+            'max-width:100%',
+            'height:auto',
+            'width:100%',
+            'border-radius:inherit',
+            'object-fit:cover'
+          ].join(';');
+
+          // For viewer, we simulate the two-column layout using a table for predictable canvas rendering
+          const leftHtml = imagePos === 'left'
+            ? `<td style="vertical-align:top;padding:0;margin:0;width:${imageWidthPct}%;padding-right:${gapPx}px;">
+                 ${ imageUrl ? `<img src="${escapeHtml(imageUrl)}" style="${imgStyle}" alt="Image" />` : `<div style="width:100%;height:120px;background:#f3f3f3;display:flex;align-items:center;justify-content:center;color:#999;border:1px dashed #e0e0e0">No image</div>` }
+               </td>
+               <td style="vertical-align:top;padding:0;margin:0;">${values.text || ''}</td>`
+            : `<td style="vertical-align:top;padding:0;margin:0;">${values.text || ''}</td>
+               <td style="vertical-align:top;padding:0;margin:0;width:${imageWidthPct}%;padding-left:${gapPx}px;">
+                 ${ imageUrl ? `<img src="${escapeHtml(imageUrl)}" style="${imgStyle}" alt="Image" />` : `<div style="width:100%;height:120px;background:#f3f3f3;display:flex;align-items:center;justify-content:center;color:#999;border:1px dashed #e0e0e0">No image</div>` }
+               </td>`;
+
+          return `
+            <div style="${containerStyle}">
+              <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;width:100%;">
+                <tr>
+                  ${leftHtml}
+                </tr>
+              </table>
+            </div>
+          `;
+        }
+      }),
+
+      exporters: {
+        // Web exporter: use flexbox and inline styles
+        web: function (values) {
+          const bg = values.backgroundColor || '#ffffff';
+          const padding = parsePaddingValue(values.containerPadding);
+          const br = values.borderRadius || { tl: 0, tr: 0, br: 0, bl: 0 };
+          const imageUrl = values.image || '';
+          const imagePos = values.imagePosition === 'right' ? 'row-reverse' : 'row';
+          const imageWidthPct = Number(values.imageWidth || 40);
+          const gapPx = Number(values.gap || 15);
+
+          // Flex container style
+          const containerStyle = [
+            'display:flex',
+            `flex-direction:${imagePos}`,
+            'align-items:flex-start',
+            'width:100%',
+            `background-color:${bg}`,
+            `padding:${padding.top}px ${padding.right}px ${padding.bottom}px ${padding.left}px`,
+            `border-radius:${px(br.tl)} ${px(br.tr)} ${px(br.br)} ${px(br.bl)}`,
+            'box-sizing:border-box'
+          ].join(';');
+
+          const imgContainerStyle = [
+            'flex:0 0 ' + imageWidthPct + '%',
+            `margin-${values.imagePosition === 'right' ? 'left' : 'right'}:${gapPx}px`,
+            'box-sizing:border-box'
+          ].join(';');
+
+          // For small screens, make the image full width on top via a simple media query (consumers can adapt)
+          // Note: many web/email contexts strip <style>, but web exporter is typically used in web pages
+          const imgHtml = imageUrl
+            ? `<img src="${escapeHtml(imageUrl)}" alt="" style="display:block;width:100%;height:auto;border-radius:inherit;object-fit:cover;" />`
+            : `<div style="width:100%;height:180px;background:#f3f3f3;display:flex;align-items:center;justify-content:center;color:#999;border:1px dashed #e0e0e0">No image</div>`;
+
+          // Text area — we expect `text` contains HTML (rich text) so pass through
+          const textHtml = values.text || '';
+
+          return `
+            <div style="${containerStyle}">
+              <div style="${imgContainerStyle}">${imgHtml}</div>
+              <div style="flex:1 1 auto;min-width:0;">${textHtml}</div>
+            </div>
+          `;
+        },
+
+        // Email exporter: produce a table-based layout with widths in percent for better compatibility
+        email: function (values) {
+          const bg = values.backgroundColor || '#ffffff';
+          const padding = parsePaddingValue(values.containerPadding);
+          const br = values.borderRadius || { tl: 0, tr: 0, br: 0, bl: 0 };
+          const imageUrl = values.image || '';
+          const imagePos = values.imagePosition === 'right' ? 'right' : 'left';
+          const imageWidthPct = Number(values.imageWidth || 40);
+          const gapPx = Number(values.gap || 15);
+
+          // Build td contents
+          const imgCell = imageUrl
+            ? `<img src="${escapeHtml(imageUrl)}" alt="" style="width:100%;height:auto;display:block;border-radius:0;object-fit:cover;" />`
+            : `<div style="width:100%;height:120px;background:#f3f3f3;display:flex;align-items:center;justify-content:center;color:#999;border:1px dashed #e0e0e0">No image</div>`;
+
+          // Text cell — rich text HTML inserted as-is (email HTML can be strict; keep that in mind)
+          const textCell = values.text || '';
+
+          // Inline container style for outer wrapper
+          const outerStyle = [
+            `background-color:${escapeHtml(bg)}`,
+            `padding:${padding.top}px ${padding.right}px ${padding.bottom}px ${padding.left}px`,
+            `border-radius:${px(br.tl)} ${px(br.tr)} ${px(br.br)} ${px(br.bl)}`,
+            'box-sizing:border-box'
+          ].join(';');
+
+          // For email, use a 2-column table; the gap is implemented as a spacer td with fixed px or via cell padding
+          // We'll use a spacer column only if gap > 0
+          const spacerHtml = gapPx > 0 ? `<td width="${gapPx}" style="width:${gapPx}px;line-height:1px;font-size:1px;">&nbsp;</td>` : '';
+
+          const leftCellHtml = imagePos === 'left'
+            ? `<td width="${imageWidthPct}%" style="vertical-align:top;padding:0;margin:0;"><table role="presentation" cellpadding="0" cellspacing="0" width="100%"><tr><td style="padding:0;margin:0;">${imgCell}</td></tr></table></td>${spacerHtml}<td style="vertical-align:top;padding:0;margin:0;">${textCell}</td>`
+            : `<td style="vertical-align:top;padding:0;margin:0;">${textCell}</td>${spacerHtml}<td width="${imageWidthPct}%" style="vertical-align:top;padding:0;margin:0;"><table role="presentation" cellpadding="0" cellspacing="0" width="100%"><tr><td style="padding:0;margin:0;">${imgCell}</td></tr></table></td>`;
+
+          // return fully inlined table
+          return `
+            <div style="${outerStyle}">
+              <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;width:100%;">
+                <tr>
+                  ${leftCellHtml}
+                </tr>
+              </table>
+            </div>
+          `;
+        }
+      },
+
+      head: {
+        // No extra head CSS/JS required here. If you want responsive web-only CSS, you can add it.
+        css: function () { return ''; },
+        js: function () { return ''; }
+      }
+    }
   });
+
+  console.log('✅ image_text_column tool registered (image + richtext side-by-side, configurable width & gap)');
+})
 
   // helpers
   function px(n) {
